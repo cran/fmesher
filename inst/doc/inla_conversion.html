@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Converting legacy INLA mesh code to fmesher</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Converting legacy INLA mesh code to
+fmesher</h1>
+
+
+
+<div id="deprecation-warnings" class="section level2">
+<h2>Deprecation warnings</h2>
+<p>Three
+<code>INLA::inla.getOption()</code>/<code>INLA::inla.setOption()</code>
+options control the transition behaviour of the <code>INLA</code>
+package use of <code>fmesher</code>.</p>
+<ul>
+<li><p><code>fmesher.evolution</code>, integer:</p>
+<ul>
+<li><code>1L</code> uses the intermediate <code>fm_*</code> methods in
+<code>fmesher</code> that were already available via inlabru from 2.8.0,
+but calls the <code>INLA</code> built-in <code>fmesher</code> standalone
+programme for mesh construction and related operations. (From
+<code>INLA</code> version 23.06.29)</li>
+<li><code>2L</code> uses the full range of <code>fmesher</code> package
+methods, and does not use the standalone <code>fmesher</code> programme.
+(From <code>INLA</code> around version 23.08.20)</li>
+</ul></li>
+<li><p><code>fmesher.evolution.warn</code>, logical: When
+<code>TRUE</code>, <code>INLA</code> will show deprecation methods for
+all the methods in <code>INLA</code> that are being replaced by
+<code>fmesher</code> package methods. When <code>FALSE</code>, no
+warnings will be shown. Set this option to <code>TRUE</code> if you want
+to update your own code, but keep it at <code>FALSE</code> when you need
+to run existing code without changing it.</p></li>
+<li><p><code>fmesher.evolution.verbosity</code>, character: Either
+“soft”, “warn”, or “stop”, indicating the minimum warning level when
+<code>fmesher.evolution.warn</code> is <code>TRUE</code>. Set this to
+“warn” or “stop” to get more immediate feedback when testing conversion
+of old code, e.g. in package testing.</p></li>
+</ul>
+</div>
+<div id="mesh-construction" class="section level2">
+<h2>Mesh construction</h2>
+<table>
+<colgroup>
+<col width="23%" />
+<col width="76%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">INLA</th>
+<th align="left">fmesher</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>inla.mesh.create()</code></td>
+<td align="left"><a href="../reference/fm_rcdt_2d.html"><code>fm_rcdt_2d</code></a><code>()</code>
+,
+<a href="../reference/fm_rcdt_2d.html"><code>fm_rcdt_2d_inla</code></a><code>()</code></td>
+</tr>
+<tr class="even">
+<td align="left"><code>inla.mesh.2d()</code></td>
+<td align="left"><a href="../reference/fm_mesh_2d.html"><code>fm_mesh_2d</code></a><code>()</code>
+,
+<a href="../reference/fm_mesh_2d.html"><code>fm_mesh_2d_inla</code></a><code>()</code></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>inla.delaunay()</code></td>
+<td align="left"><a href="../reference/fm_rcdt_2d.html"><code>fm_delaunay_2d</code></a><code>()</code></td>
+</tr>
+<tr class="even">
+<td align="left"><code>inla.mesh.1d()</code></td>
+<td align="left"><a href="../reference/fm_mesh_1d.html"><code>fm_mesh_1d</code></a><code>()</code></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>inla.mesh.lattice()</code></td>
+<td align="left"><a href="../reference/fm_lattice_2d.html"><code>fm_lattice_2d</code></a><code>()</code></td>
+</tr>
+<tr class="even">
+<td align="left"><code>inla.mesh.segment()</code></td>
+<td align="left"><a href="../reference/fm_segm.html"><code>fm_segm</code></a><code>()</code></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>inla.nonconvex.hull()</code></td>
+<td align="left"><a href="../reference/fm_nonconvex_hull.html"><code>fm_nonconvex_hull</code></a><code>()</code>,
+<a href="../reference/fm_nonconvex_hull.html"><code>fm_extensions</code></a><code>()</code>
+,
+<a href="../reference/fm_simplify.html"><code>fm_simplify</code></a><code>()</code></td>
+</tr>
+<tr class="even">
+<td align="left"><code>inla.nonconvex.hull()</code> ,
+<code>inla.contour.segment()</code>,
+<code>inla.simplify.curve()</code></td>
+<td align="left"><a href="../reference/fm_nonconvex_hull_inla.html"><code>fm_nonconvex_hull_inla</code></a><code>()</code>,
+<a href="../reference/fm_simplify_helper.html"><code>fm_simplify_helper</code></a><code>()</code>
+,
+<a href="../reference/fm_segm_contour_helper.html"><code>fm_segm_contour_helper</code></a><code>()</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="basis-and-function-evaluation" class="section level2">
+<h2>Basis and function evaluation</h2>
+<table>
+<colgroup>
+<col width="2%" />
+<col width="97%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">INLA</th>
+<th align="left">fmesher</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>inla.mesh.projector()</code></td>
+<td align="left"><a href="../reference/fm_evaluate.html"><code>fm_evaluator</code></a><code>()</code></td>
+</tr>
+<tr class="even">
+<td align="left"><code>inla.mesh.project()</code></td>
+<td align="left"><a href="../reference/fm_evaluate.html"><code>fm_evaluate</code></a><code>()</code></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>inla.spde.make.A()</code></td>
+<td align="left"><a href="../reference/fm_basis.html"><code>fm_basis</code></a><code>()</code>
+,
+<a href="../reference/fm_row_kron.html"><code>fm_row_kron</code></a><code>()</code>
+,
+<a href="https://inlabru-org.github.io/inlabru/reference/bru_mapper.html"><code>inlabru::bru_mapper_multi</code></a><code>()</code>
+,
+<a href="https://inlabru-org.github.io/inlabru/reference/bru_mapper_generics.html"><code>inlabru::ibm_jacobian</code></a><code>()</code>,
+<a href="../reference/fm_block.html"><code>fm_block</code></a><code>()</code>
+,
+<a href="../reference/fm_block.html"><code>fm_block_eval</code></a><code>()</code>
+,
+<a href="https://inlabru-org.github.io/inlabru/reference/bru_mapper.html"><code>inlabru::bru_mapper_aggregate</code></a><code>()</code></td>
+</tr>
+<tr class="even">
+<td align="left"><code>inla.mesh.deriv()</code></td>
+<td align="left"><a href="../reference/fm_basis.html"><code>fm_basis</code></a><code>()</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="printing" class="section level2">
+<h2>Printing</h2>
+<table>
+<colgroup>
+<col width="8%" />
+<col width="82%" />
+<col width="9%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">INLA</th>
+<th align="left">fmesher</th>
+<th align="left">Comments</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>summary.inla.mesh()</code></td>
+<td align="left"><a href="../reference/fmesher-print.html"><code>print.fm_mesh_2d</code></a><code>()</code>,
+<a href="../reference/fmesher-print.html"><code>print.fm_segm</code></a><code>()</code>
+,
+<a href="../reference/fmesher-print.html"><code>print.fm_mesh_1d</code></a><code>()</code></td>
+<td align="left">Use <code>print(mesh)</code> etc.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="crs-information-and-coordinate-transformations" class="section level2">
+<h2>CRS information and coordinate transformations</h2>
+<table>
+<colgroup>
+<col width="7%" />
+<col width="39%" />
+<col width="53%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">INLA</th>
+<th align="left">fmesher</th>
+<th align="left">Comments</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>inla.spTransform()</code></td>
+<td align="left"><a href="../reference/fm_transform.html"><code>fm_transform</code></a><code>()</code></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"><code>mesh$crs</code></td>
+<td align="left"><a href="../reference/fm_crs.html"><code>fm_crs</code></a><code>(mesh)</code>
+,
+<a href="../reference/fm_CRS_sp.html"><code>fm_CRS</code></a><code>(mesh)</code></td>
+<td align="left">The crs may now be stored in different formats; use
+<code>fm_crs()</code> for <code>sf</code> format, and
+<code>fm_CRS()</code> for <code>sp</code> format. <code>fmesher</code>
+will attempt to convert when needed.</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>mesh$crs&lt;-</code></td>
+<td align="left"><a href="../reference/fm_crs.html"><code>fm_crs</code></a><code>(mesh)&lt;-</code></td>
+<td align="left">Direct assignment of crs information should be avoided,
+but is allowed as long as its compatible with the actual mesh
+coordinates.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="plotting" class="section level2">
+<h2>Plotting</h2>
+<table>
+<colgroup>
+<col width="15%" />
+<col width="57%" />
+<col width="26%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">INLA</th>
+<th align="left">fmesher</th>
+<th align="left">Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>No ggplot support</code></td>
+<td align="left"><a href="../reference/geom_fm.html"><code>geom_fm</code></a><code>(data = mesh)</code>,
+<a href="../reference/geom_fm.html"><code>geom_fm</code></a><code>(data = segm)</code></td>
+<td align="left">Use <code>ggplot() + geom_fm(data = mesh)</code> and
+<code>inlabru::gg()</code> methods</td>
+</tr>
+<tr class="even">
+<td align="left"><code>plot.inla.mesh(rgl = FALSE)</code></td>
+<td align="left"><a href="../reference/plot.fm_mesh_2d.html"><code>plot.fm_mesh_2d</code></a><code>()</code>
+,
+<a href="../reference/plot.fm_mesh_2d.html"><code>lines.fm_mesh_2d</code></a><code>()</code></td>
+<td align="left">Use <code>plot()</code> or <code>lines()</code></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>lines.inla.mesh.segment(rgl = FALSE)</code></td>
+<td align="left"><a href="../reference/plot.fm_segm.html"><code>plot.fm_segm</code></a><code>()</code>
+,
+<a href="../reference/plot.fm_segm.html"><code>lines.fm_segm</code></a><code>()</code></td>
+<td align="left">Use <code>plot()</code> or <code>lines()</code></td>
+</tr>
+<tr class="even">
+<td align="left"><code>plot.inla.mesh(rgl = TRUE)</code></td>
+<td align="left"><a href="../reference/plot_rgl.html"><code>plot_rgl</code></a><code>()</code>
+,
+<a href="../reference/plot_rgl.html"><code>lines_rgl</code></a><code>()</code></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>lines.inla.mesh.segment(rgl = TRUE)</code></td>
+<td align="left"><a href="../reference/plot_rgl.html"><code>plot_rgl</code></a><code>()</code>
+,
+<a href="../reference/plot_rgl.html"><code>lines_rgl</code></a><code>()</code></td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

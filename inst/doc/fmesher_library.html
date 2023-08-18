@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Finn Lindgren" />
+
+
+<title>The fmesher C++ library</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+
+
+
+<style type="text/css">
+
+div.csl-bib-body { }
+div.csl-entry {
+clear: both;
+}
+.hanging div.csl-entry {
+margin-left:2em;
+text-indent:-2em;
+}
+div.csl-left-margin {
+min-width:2em;
+float:left;
+}
+div.csl-right-inline {
+margin-left:2em;
+padding-left:1em;
+}
+div.csl-indent {
+margin-left: 2em;
+}
+</style>
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">The fmesher C++ library</h1>
+<h4 class="author">Finn Lindgren</h4>
+
+
+
+<p>The plan is to briefly describe the backend fmesher C++ library.</p>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>The <code>fmesher</code> C++ library was initially written by Finn
+Lindgren in April/May 2010, as an implementation of the data structures
+and refined constrained Delaunay triangulation (RCDT) methods from <span class="citation">Hjelle and Dæhlen (2006)</span>, extended to RCDTs on
+spheres.</p>
+</div>
+<div id="data-structures" class="section level2">
+<h2>Data structures</h2>
+<p>The key to the algorithm speed is the use of traversal operators for
+the mesh graph, made efficient by support in the data structure for key
+operations.</p>
+<div id="triangle-centric-data-model" class="section level3">
+<h3>Triangle centric data model</h3>
+<p>The mesh storage is composed of a 3-column matrix of vertex
+coordinates, <code>S</code>, and three triangle graph topology 3-column
+integer matrices:</p>
+<ul>
+<li><code>TV</code>: 3 vertex indices, in CCW order</li>
+<li><code>TT</code>: For each of the 3 corners, the index of the
+opposing edge neighbouring triangle, if any, otherwise -1.</li>
+<li><code>TTi</code>: For each of the 3 corners, the in-triangle index
+of the opposing edge’s neighbouring triangle’s opposing in-triangle
+index. This structure can be turned on/off to allow certain operations
+to be more efficient.</li>
+</ul>
+<p>This is similar to a winged-edge or half-edge structure, but treats
+triangles as primary objects, allowing compact storage as well as
+efficient graph traversal.</p>
+<p>Note: A further structure, <code>VT</code>, can be enabled, that for
+each vertex gives the index of a single triangle that it is used by. A
+limitation of this data structure is that there is no cheap way to
+access <em>all</em> triangles that connect to a given vertex, unless the
+mesh is a proper edge-connected manifold. For example, some operation
+will not handle meshes where the forward and inverse <code>orbit0</code>
+operations cannot reach all the connected triangles. To handle such
+cases, the data structure may need to be extended with a triangle index
+set for each vertex, in effect replacing the <code>VT</code>
+single-index vector with a vector of sets, and replacing some key
+algorithms that currently rely on <code>orbit0</code> operations.</p>
+</div>
+<div id="graph-traversal-algebra" class="section level3">
+<h3>Graph traversal algebra</h3>
+<ul>
+<li><code>Dart</code> location objects; originator vertex, edge
+direction, and triangle</li>
+<li>Each <code>alpha</code> operator alters only one simplex quantity:
+<ul>
+<li><code>alpha0</code>: swap the originating vertex for the edge, keep
+the triangle</li>
+<li><code>alpha1</code>: swap to the edge pointing to the remaining 3rd
+vertex, keep the originator vertex and triangle</li>
+<li><code>alpha2</code>: swap to the adjacent triangle, stay along the
+same edge and keep the originator vertex</li>
+</ul></li>
+<li>Each <code>orbit</code> keeps one simplex quantity fixed while
+altering the other two, keeping orientation intact; If one starts with a
+<code>Dart</code> pointing in CCW direction in a triangle, each
+successful orbit operation will keep that property.
+<ul>
+<li><code>orbit0 = alpha1,alpha2</code>: move to the next CCW adjacent
+triangle, except on boundary</li>
+<li><code>orbit1 = alpha2,alpha0</code>: move to the adjacent triangle
+and swap edge direction, except on boundary</li>
+<li><code>orbit2 = alpha0,alpha1</code>: move to the next CCW vertex in
+the triangle</li>
+</ul></li>
+</ul>
+<p>These operators, and their inverses, allow arbitrary graph traversal
+of 2-manifold meshes with triangles connected via edges.</p>
+</div>
+<div id="matrices" class="section level3">
+<h3>Matrices</h3>
+</div>
+<div id="point-locator-trees" class="section level3">
+<h3>Point locator trees</h3>
+</div>
+</div>
+<div id="operations" class="section level2">
+<h2>Operations</h2>
+<div id="rcdt" class="section level3">
+<h3>RCDT</h3>
+</div>
+<div id="point-locator" class="section level3">
+<h3>Point locator</h3>
+</div>
+</div>
+<div id="rcpp-interface" class="section level2">
+<h2>Rcpp interface</h2>
+<div id="rcdt-1" class="section level3">
+<h3>rcdt</h3>
+</div>
+<div id="bary" class="section level3">
+<h3>bary</h3>
+</div>
+<div id="fem" class="section level3">
+<h3>fem</h3>
+</div>
+<div id="split_lines" class="section level3">
+<h3>split_lines</h3>
+</div>
+</div>
+<div id="references" class="section level2 unnumbered">
+<h2 class="unnumbered">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-hjelle_daehlen_2006" class="csl-entry">
+Hjelle, Øyvind, and Morten Dæhlen. 2006. <em>Triangulations and
+Applications</em>. Springer Berlin, Heidelberg. <a href="https://doi.org/10.1007/3-540-33261-8">https://doi.org/10.1007/3-540-33261-8</a>.
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
