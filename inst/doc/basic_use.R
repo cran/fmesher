@@ -9,7 +9,7 @@ knitr::opts_chunk$set(
   #  out.width = 250,
   #  out.height = 250
 )
-rgl::setupKnitr(autoprint = TRUE)
+options("bitmapType" = "cairo")
 
 ## ----setup--------------------------------------------------------------------
 suppressPackageStartupMessages(library(fmesher))

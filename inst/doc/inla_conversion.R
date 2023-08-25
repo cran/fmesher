@@ -46,7 +46,8 @@ convert_fun_links <- function(df) {
               ""
             },
             nm,
-            "`</a>`", args, "`"
+            args,
+            "`</a>"
           )
         },
         ""
@@ -96,6 +97,20 @@ df <- tribble(
     "inlabru::bru_mapper_aggregate()"
   ),
   "inla.mesh.deriv()", "fm_basis()"
+)
+df <- convert_fun_links(df)
+
+## ---- echo = FALSE------------------------------------------------------------
+knitr::kable(df)
+
+## ----echo = FALSE-------------------------------------------------------------
+df <- tribble(
+  ~INLA, ~fmesher, ~Comment,
+  c("inla.mesh.fem()", "inla.mesh.1d.fem()"), "fm_fem()", " ",
+  " ", "fm_matern_precision()", " ",
+  " ", "fm_matern_sample()", "Convenience function that combines `fm_matern_precision()` and `fm_sample()`.",
+  " ", "fm_covariance()", "Basic helper function for compution covariances between different locations. Can produce sparse inverses like `inla.qinv()`, but currently (version 0.1.1) only by a 'brute force' method.",
+  " ", "fm_sample()", "Basic sampling method, like `inla.qsample()`"
 )
 df <- convert_fun_links(df)
 
