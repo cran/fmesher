@@ -1,7 +1,7 @@
 Package: fmesher
 Type: Package
 Title: Triangle Meshes and Related Geometry Tools
-Version: 0.1.6
+Version: 0.1.7
 Authors@R: c(
   person("Finn", "Lindgren", email = "finn.lindgren@gmail.com",
          role = c("aut", "cre", "cph"),
@@ -36,7 +36,7 @@ License: MPL-2.0
 Copyright: 2010-2023 Finn Lindgren, except src/predicates.cc by
         Jonathan Richard Shewchuk, 1996
 NeedsCompilation: yes
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Encoding: UTF-8
 Config/testthat/edition: 3
 Config/testthat/parallel: true
@@ -53,7 +53,7 @@ Collate: 'RcppExports.R' 'deprecated.R' 'bary.R' 'bbox.R' 'print.R'
         'sf_utils.R' 'simplify.R' 'sp_mesh.R' 'split_lines.R'
         'tensor.R' 'utils.R'
 LazyData: true
-Packaged: 2024-06-14 16:50:38 UTC; flindgre
+Packaged: 2024-07-01 12:27:53 UTC; flindgre
 Author: Finn Lindgren [aut, cre, cph] (<https://orcid.org/0000-0002-5833-2011>,
     Finn Lindgren wrote the main code),
   Seaton Andy [ctb] (Andy Seaton constributed features to the sf support),
@@ -63,4 +63,4 @@ Author: Finn Lindgren [aut, cre, cph] (<https://orcid.org/0000-0002-5833-2011>,
     fm_pixels and fm_split_lines in inlabru)
 Maintainer: Finn Lindgren <finn.lindgren@gmail.com>
 Repository: CRAN
-Date/Publication: 2024-06-14 17:20:08 UTC
+Date/Publication: 2024-07-01 13:00:02 UTC
