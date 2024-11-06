@@ -4,8 +4,8 @@ knitr::opts_chunk$set(
   comment = "#>",
   dev = "png",
   dev.args = list(type = "cairo-png"),
-  fig.width = 7,
-  fig.height = 5
+  fig.width = 5,
+  fig.height = 5 * 5 / 7
   #  out.width = 250,
   #  out.height = 250
 )
@@ -15,15 +15,14 @@ options("bitmapType" = "cairo")
 suppressPackageStartupMessages(library(fmesher))
 set.seed(1234L)
 
-## ----basic2-------------------------------------------------------------------
+## ----basic2,fig.cap="2D triangulation mesh"-----------------------------------
 domain <- cbind(rnorm(4, sd = 3), rnorm(4))
 (mesh2 <- fm_mesh_2d(
   boundary = fm_extensions(domain, c(2.5, 5)),
   max.edge = c(0.5, 2)
 ))
-plot(mesh2, axes = TRUE)
 
-## ----basic1-------------------------------------------------------------------
+## ----basic1,fig.cap="1D B-spline function space basis functions"--------------
 (mesh1 <- fm_mesh_1d(
   c(0, 2, 4, 7, 10),
   boundary = "free", # c("neumann", "dirichlet"),
@@ -33,15 +32,21 @@ plot(mesh2, axes = TRUE)
 ## ----lookup2------------------------------------------------------------------
 pts <- cbind(rnorm(400, sd = 3), rnorm(400))
 
-# Find what triangle each point is in, and it's triangular Barycentric coordinates
+# Find what triangle each point is in, and it triangular Barycentric
+# coordinates
 bary <- fm_bary(mesh2, loc = pts)
 # How many points are outside the mesh?
 sum(is.na(bary$t))
 head(bary$bary)
 
+# Evaluate basis functions
+basis <- fm_basis(mesh2, loc = pts) # Raw SparseMatrix
+basis_object <- fm_basis(mesh2, loc = pts, full = TRUE) # fm_basis object
+sum(!basis_object$ok)
+
 # Construct an evaluator object
 evaluator <- fm_evaluator(mesh2, loc = pts)
-sum(!evaluator$proj$ok)
+sum(!fm_basis(evaluator, full = TRUE)$ok)
 
 # Values for the basis function weights; for ordinary 2d meshes this coincides
 # with the resulting values at the vertices, but this is not true for e.g.
@@ -50,7 +55,7 @@ field <- mesh2$loc[, 1]
 value <- fm_evaluate(evaluator, field = field)
 sum(abs(pts[, 1] - value), na.rm = TRUE)
 
-## ----lookup1------------------------------------------------------------------
+## ----lookup1,fig.cap="Evaluated 1D function"----------------------------------
 pts1 <- seq(-2, 12, length.out = 1000)
 
 # Find what segment, and its interval Barycentric coordinates
@@ -60,10 +65,15 @@ bary1 <- fm_bary(mesh1, loc = pts1)
 sum(is.na(bary1$t))
 head(bary1$bary)
 
+# Evaluate basis functions
+basis1 <- fm_basis(mesh1, loc = pts1) # Raw SparseMatrix
+basis1_object <- fm_basis(mesh1, loc = pts1, full = TRUE) # fm_basis object
+sum(!basis1_object$ok)
+
 # Construct an evaluator object.
 evaluator1 <- fm_evaluator(mesh1, loc = pts1)
 # mesh_1d basis functions are defined everywhere
-sum(!evaluator1$proj$ok)
+sum(!fm_basis(evaluator1, full = TRUE)$ok)
 
 # Values for the basis function weights; for ordinary 2d meshes this coincides
 # with the resulting values at the vertices, but this is not true for e.g.
@@ -72,14 +82,15 @@ field1 <- rnorm(fm_dof(mesh1))
 value1 <- fm_evaluate(evaluator1, field = field1)
 plot(pts1, value1, type = "l")
 
-## -----------------------------------------------------------------------------
+## ----fig.cap="2D triangulation mesh (base graphics version)"------------------
 plot(mesh2)
 
-## -----------------------------------------------------------------------------
+## ----fig.cap="2D triangulation mesh (ggplot version)"-------------------------
 suppressPackageStartupMessages(library(ggplot2))
 ggplot() +
   geom_fm(data = mesh2)
 
+## ----fig.cap="1D B-spline function space basis functions with evaluated function (ggplot version)"----
 ggplot() +
   geom_fm(data = mesh1, weights = field1 + 2, xlim = c(-2, 12)) +
   geom_fm(data = mesh1, linetype = 2, alpha = 0.5, xlim = c(-2, 12))
@@ -90,8 +101,11 @@ names(fem1)
 fem2 <- fm_fem(mesh2, order = 2)
 names(fem2)
 
-## -----------------------------------------------------------------------------
+## ----sim,fig.cap="Simulated 2D Matérn field"----------------------------------
 samp <- fm_matern_sample(mesh2, alpha = 2, rho = 4, sigma = 1)[, 1]
-evaluator <- fm_evaluator(mesh2, lattice = fm_evaluator_lattice(mesh2, dims = c(150, 50)))
+evaluator <- fm_evaluator(
+  mesh2,
+  lattice = fm_evaluator_lattice(mesh2, dims = c(150, 50))
+)
 image(evaluator$x, evaluator$y, fm_evaluate(evaluator, field = samp), asp = 1)
 
