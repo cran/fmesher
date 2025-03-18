@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Custom mesh classes</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Custom mesh classes</h1>
+
+
+
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(fmesher)</span></code></pre></div>
+<div id="minimal-interface" class="section level2">
+<h2>Minimal interface</h2>
+<p>Users and package developers can add <code>fmesher</code> support to
+their own classes. A minimal interface needs to define
+<code>fm_dof()</code> and <code>fm_basis()</code> methods. Assuming the
+class is called <code>custom</code>, the methods should be named
+<code>fm_dof.custom()</code> and <code>fm_basis.custom()</code>.</p>
+<ul>
+<li><p>The <code>fm_dof.custom(x)</code> method <em>must</em> take an
+object <code>x</code> of class <code>custom</code> and return the number
+of degrees of freedom of the function space.</p></li>
+<li><p>The <code>fm_basis.custom(x, loc, ..., full = FALSE)</code>
+method <em>must</em> take an object <code>x</code> of class
+<code>custom</code> and return a <code>sparseMatrix</code> or
+<code>Matrix</code> matrix with each column containing the basis
+function evaluated at the locations determined by <code>loc</code>.</p>
+<p>The type of <code>loc</code> may be any type (or types) that is
+supported by the custom class.</p>
+<p>The <code>...</code> part can include further named arguments
+specific to the custom class. These must be optional arguments so that
+<code>fm_basis(x, loc)</code> works.</p>
+<p>When <code>full = TRUE</code>, a full <code>fm_basis</code> object
+<em>must</em> be returned, which is a list containing <em>at least</em>
+the basis matrix as <code>A</code>, and a logical vector,
+<code>ok</code>, indicating which <code>loc</code> values were valid
+evaluation points. The <code>A</code> matrix <em>must</em> be all-zero
+for invalid <code>loc</code>.</p></li>
+<li><p>With the above requirements fulfilled, the default
+<code>fm_evaluator()</code> and <code>fm_evaluate()</code> methods can
+be used to evaluate functions at any location, with the need fo the user
+to define any further methods.</p>
+<p>Special <code>fm_evaluator.custom()</code> and
+<code>fm_evaluate.custom()</code> methods may be defined if needed,
+e.g. to support semi-automated output reformatting.</p></li>
+</ul>
+<div id="example-harmonic-function-space-of-order-n" class="section level3">
+<h3>Example: Harmonic function space of order n</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Custom class for harmonic functions up to order `n`</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>create_custom <span class="ot">&lt;-</span> <span class="cf">function</span>(n) {</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="fu">stopifnot</span>(n <span class="sc">&gt;=</span> <span class="dv">0</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="fu">structure</span>(</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">n =</span> n),</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>    <span class="at">class =</span> <span class="st">&quot;custom&quot;</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  )</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>}</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>fm_dof.custom <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  <span class="co"># Return the number of degrees of freedom</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  <span class="dv">1</span><span class="dt">L</span> <span class="sc">+</span> <span class="dv">2</span><span class="dt">L</span> <span class="sc">*</span> x[[<span class="st">&quot;n&quot;</span>]]</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>}</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>fm_basis.custom <span class="ot">&lt;-</span> <span class="cf">function</span>(x, loc, ..., <span class="at">full =</span> <span class="cn">FALSE</span>) {</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="co"># Return the evaluated basis functions</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  A <span class="ot">&lt;-</span> Matrix<span class="sc">::</span><span class="fu">Matrix</span>(<span class="fl">0.0</span>, <span class="fu">NROW</span>(loc), <span class="fu">fm_dof</span>(x))</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>  ok <span class="ot">&lt;-</span> <span class="sc">!</span><span class="fu">is.na</span>(loc)</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>  A[ok, <span class="dv">1</span><span class="dt">L</span>] <span class="ot">&lt;-</span> <span class="fl">1.0</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  <span class="cf">for</span> (k <span class="cf">in</span> <span class="fu">seq_len</span>(x[[<span class="st">&quot;n&quot;</span>]])) {</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>    A[ok, <span class="dv">2</span> <span class="sc">*</span> k] <span class="ot">&lt;-</span> <span class="fu">cos</span>(<span class="dv">2</span> <span class="sc">*</span> pi <span class="sc">*</span> k <span class="sc">*</span> loc[ok])</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>    A[ok, <span class="dv">2</span> <span class="sc">*</span> k <span class="sc">+</span> <span class="dv">1</span><span class="dt">L</span>] <span class="ot">&lt;-</span> <span class="fu">sin</span>(<span class="dv">2</span> <span class="sc">*</span> pi <span class="sc">*</span> k <span class="sc">*</span> loc[ok])</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>  }</span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>  result <span class="ot">&lt;-</span> <span class="fu">structure</span>(</span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>    <span class="fu">list</span>(</span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>      <span class="at">A =</span> A,</span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a>      <span class="at">ok =</span> ok, <span class="co"># Required prior to version 0.2.0.9003</span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a>      <span class="at">loc =</span> loc</span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a>    ),</span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a>    <span class="at">class =</span> <span class="st">&quot;fm_basis&quot;</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a>  )</span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a>  <span class="co"># Use the fm_basis method to extract the A matrix if full is FALSE:</span></span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a>  <span class="fu">fm_basis</span>(result, <span class="at">full =</span> full)</span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a>}</span></code></pre></div>
+<p>Note: From version <code>0.2.0.9004</code>, the
+<code>fm_basis.matrix</code>, <code>fm_basis.Matrix</code>, and
+<code>fm_basis.list</code> methods provide an easier way to construct
+the <code>fm_basis</code> object, by creating the object and optionally
+extracting <code>A</code> in a single call:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># &#39;matrix&#39; and &#39;Matrix&#39; methods:</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">fm_basis</span>(</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="at">A =</span> A,</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="at">ok =</span> ok, <span class="co"># If missing or NULL, inferred to be all TRUE</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="at">loc =</span> loc, <span class="co"># Optional additional content</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  <span class="at">full =</span> full</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>)</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co"># &#39;list&#39; method:</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="fu">fm_basis</span>(</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>  <span class="fu">list</span>(</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>    <span class="at">A =</span> A,</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>    <span class="at">ok =</span> ok, <span class="co"># If missing or NULL, inferred to be all TRUE</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>    <span class="at">loc =</span> loc</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>  ),</span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>  <span class="at">full =</span> full</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>)</span></code></pre></div>
+<div id="registering-the-methods" class="section level4">
+<h4>Registering the methods</h4>
+<p>These S3 methods must be registered with the <code>S3method()</code>
+function in scripts, and with special NAMESPACE tags in packages. In a
+script, one should use</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">.S3method</span>(<span class="st">&quot;fm_dof&quot;</span>, <span class="st">&quot;custom&quot;</span>, <span class="st">&quot;fm_dof.custom&quot;</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">.S3method</span>(<span class="st">&quot;fm_basis&quot;</span>, <span class="st">&quot;custom&quot;</span>, <span class="st">&quot;fm_basis.custom&quot;</span>)</span></code></pre></div>
+<p>In a package, if R is version 3.6 or newer, one can use roxygen2
+tags</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co">#&#39; @rawNamespace S3method(fmesher::fm_dof, custom)</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&#39; @rawNamespace S3method(fmesher::fm_basis, custom)</span></span></code></pre></div>
+<p>or before each method, use <code>@exportS3Method</code>, like
+this:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co">#&#39; @title Degrees of freedom for custom mesh</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&#39; @description the number of degrees of freedom</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&#39; # The rest of the documentation goes here</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&#39; @exportS3method fmesher::fm_dof</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>fm_dof.custom <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  <span class="dv">1</span><span class="dt">L</span> <span class="sc">+</span> <span class="dv">2</span><span class="dt">L</span> <span class="sc">*</span> x[[<span class="st">&quot;n&quot;</span>]]</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>}</span></code></pre></div>
+<p>which semi-automates it.</p>
+<p>We can the use the new methods with</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">create_custom</span>(<span class="dv">2</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co"># How many latent variables are needed?</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="fu">fm_dof</span>(m)</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt; [1] 5</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co"># Evaluate the basis functions at some locations:</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="fu">fm_basis</span>(m, <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">length.out =</span> <span class="dv">6</span>))</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; 6 x 5 sparse Matrix of class &quot;dgCMatrix&quot;</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt;                                                       </span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; [1,] 1  1.000000  .             1.000000  .           </span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; [2,] 1  0.309017  9.510565e-01 -0.809017  5.877853e-01</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; [3,] 1 -0.809017  5.877853e-01  0.309017 -9.510565e-01</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; [4,] 1 -0.809017 -5.877853e-01  0.309017  9.510565e-01</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt; [5,] 1  0.309017 -9.510565e-01 -0.809017 -5.877853e-01</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; [6,] 1  1.000000 -2.449294e-16  1.000000 -4.898587e-16</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="fu">fm_basis</span>(m, <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">length.out =</span> <span class="dv">6</span>), <span class="at">full =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; fm_basis object</span></span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="co">#&gt;   Projection matrix (A): 6-by-5</span></span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="co">#&gt;   Valid evaluations (ok): 6 out of 6</span></span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="co">#&gt;   Additional information: loc</span></span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a></span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a><span class="co"># Check if missing values are handled correctly:</span></span>
+<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a><span class="fu">fm_basis</span>(m, <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="cn">NA</span>, <span class="fl">0.2</span>))</span>
+<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a><span class="co">#&gt; 3 x 5 sparse Matrix of class &quot;dgCMatrix&quot;</span></span>
+<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a><span class="co">#&gt;                                              </span></span>
+<span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a><span class="co">#&gt; [1,] 1 0.809017 0.5877853  0.309017 0.9510565</span></span>
+<span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a><span class="co">#&gt; [2,] . .        .          .        .        </span></span>
+<span id="cb7-29"><a href="#cb7-29" tabindex="-1"></a><span class="co">#&gt; [3,] 1 0.309017 0.9510565 -0.809017 0.5877853</span></span>
+<span id="cb7-30"><a href="#cb7-30" tabindex="-1"></a><span class="fu">fm_basis</span>(m, <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="cn">NA</span>, <span class="fl">0.2</span>), <span class="at">full =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-31"><a href="#cb7-31" tabindex="-1"></a><span class="co">#&gt; fm_basis object</span></span>
+<span id="cb7-32"><a href="#cb7-32" tabindex="-1"></a><span class="co">#&gt;   Projection matrix (A): 3-by-5</span></span>
+<span id="cb7-33"><a href="#cb7-33" tabindex="-1"></a><span class="co">#&gt;   Valid evaluations (ok): 2 out of 3</span></span>
+<span id="cb7-34"><a href="#cb7-34" tabindex="-1"></a><span class="co">#&gt;   Additional information: loc</span></span></code></pre></div>
+</div>
+</div>
+</div>
+<div id="expanded-implementations" class="section level2">
+<h2>Expanded implementations</h2>
+<p>The main additional method that can be defined is the
+<code>fm_int()</code> integration scheme method. This must have the call
+structure
+<code>fm_int.custom(domain, samplers = NULL, name = &quot;x&quot;, ...)</code>.</p>
+<ul>
+<li>The <code>domain</code> argument is the <code>custom</code> class
+object over which to integrate.</li>
+<li>The <code>samplers</code> argument is any object, typically an
+<code>sf</code> or <code>tibble</code> specifying one or more subsets of
+the domain, e.g. polygons. When <code>NULL</code>, the entire domain
+should be integrated.</li>
+<li>The <code>name</code> argument is a character string specifying the
+name of the integration point variable.</li>
+<li>The <code>...</code> arguments can be augmented with further
+optional arguments, e.g. options controlling the integration scheme
+construction and/or the output format.</li>
+</ul>
+<p><code>out &lt;- fm_int(domain, samplers, name)</code> should return a
+<code>data.frame</code>, <code>tibble</code>, or <code>sf</code> object
+with integration points in a column with the name indicated by
+<em><name></em>, and additional columns <code>weight</code> with
+corresponding integration weights, and a <code>.block</code> column.</p>
+<ul>
+<li>The <em><name></em> column format should be compatible with
+<code>fm_basis(domain, out[[name]])</code>.</li>
+<li>The <code>.block</code> column should be an integer vector
+indicating which subdomain each integration point belongs to, usable by
+<code>fm_block_eval()</code>:</li>
+</ul>
+<pre><code>#&gt;      x weight .block
+#&gt; 1  0.0   0.05      1
+#&gt; 2  0.1   0.10      1
+#&gt; 3  0.2   0.10      1
+#&gt; 4  0.3   0.05      1
+#&gt; 5  0.3   0.05      2
+#&gt; 6  0.4   0.10      2
+#&gt; 7  0.5   0.05      2
+#&gt; 8  0.5   0.05      3
+#&gt; 9  0.6   0.10      3
+#&gt; 10 0.7   0.10      3
+#&gt; 11 0.8   0.10      3
+#&gt; 12 0.9   0.10      3
+#&gt; 13 1.0   0.05      3</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>values <span class="ot">&lt;-</span> <span class="fu">fm_evaluate</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  m,</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="at">field =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>),</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="at">loc =</span> out[[<span class="st">&quot;x&quot;</span>]]</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>)</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co"># Blockwise aggregation:</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="fu">fm_block_eval</span>(</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>  <span class="at">block =</span> out<span class="sc">$</span>.block,</span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>  <span class="at">weights =</span> out<span class="sc">$</span>weight,</span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>  <span class="at">values =</span> values</span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>)</span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt; [1] 0.44635255 0.05364745 0.50000000</span></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co"># Exact integrals:</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="fu">c</span>(<span class="fl">0.3</span>, <span class="fl">0.2</span>, <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>  <span class="fu">c</span>(</span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a>    <span class="fu">sin</span>(<span class="dv">2</span> <span class="sc">*</span> pi <span class="sc">*</span> <span class="fl">0.3</span>),</span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a>    <span class="fu">sin</span>(<span class="dv">2</span> <span class="sc">*</span> pi <span class="sc">*</span> <span class="fl">0.5</span>) <span class="sc">-</span> <span class="fu">sin</span>(<span class="dv">2</span> <span class="sc">*</span> pi <span class="sc">*</span> <span class="fl">0.3</span>),</span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a>    <span class="fu">sin</span>(<span class="dv">2</span> <span class="sc">*</span> pi) <span class="sc">-</span> <span class="fu">sin</span>(<span class="dv">2</span> <span class="sc">*</span> pi <span class="sc">*</span> <span class="fl">0.5</span>)</span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a>  ) <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> pi)</span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt; [1] 0.45136535 0.04863465 0.50000000</span></span></code></pre></div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

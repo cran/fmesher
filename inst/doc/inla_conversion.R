@@ -48,19 +48,25 @@ convert_fun_link <- function(x, webref) {
   )
 }
 
-convert_fun_links <- function(df) {
+convert_fun_links <- function(df, packages = colnames(df)) {
   webref <- list(
-    fmesher = "../reference/",
+    fmesher = "https://inlabru-org.github.io/fmesher/reference/",
     inlabru = "https://inlabru-org.github.io/inlabru/reference/"
   )
+  packages <- setdiff(packages, "Comments")
   for (k in seq_len(nrow(df))) {
-    df$INLA[[k]] <- paste0("`", df$INLA[[k]], "`")
-    df$fmesher[[k]] <-
-      vapply(
-        df$fmesher[[k]],
-        function(x) convert_fun_link(x, webref),
-        ""
-      )
+    for (pkg in packages) {
+      if (identical(pkg, "INLA")) {
+        df[["INLA"]][[k]] <- paste0("`", df$INLA[[k]], "`")
+      } else {
+        df[[pkg]][[k]] <-
+          vapply(
+            df[[pkg]][[k]],
+            function(x) convert_fun_link(x, webref),
+            ""
+          )
+      }
+    }
   }
   df
 }
@@ -97,19 +103,20 @@ knitr::kable(df)
 
 ## ----echo = FALSE-------------------------------------------------------------
 df <- tribble(
-  ~INLA, ~fmesher,
-  "inla.mesh.projector()", "fm_evaluator()",
-  "inla.mesh.project()", "fm_evaluate()",
+  ~INLA, ~fmesher, ~inlabru,
+  "inla.mesh.projector()", "fm_evaluator()", character(0),
+  "inla.mesh.project()", "fm_evaluate()", character(0),
   "inla.spde.make.A()", c(
     "fm_basis()",
     "fm_row_kron()",
+    "fm_block()",
+    "fm_block_eval()"
+  ), c(
     "inlabru::bru_mapper_multi()",
     "inlabru::ibm_jacobian()",
-    "fm_block()",
-    "fm_block_eval()",
     "inlabru::bru_mapper_aggregate()"
   ),
-  "inla.mesh.deriv()", "fm_basis()"
+  "inla.mesh.deriv()", "fm_basis()", character(0)
 )
 df <- convert_fun_links(df)
 
@@ -118,7 +125,7 @@ knitr::kable(df)
 
 ## ----echo = FALSE-------------------------------------------------------------
 df <- tribble(
-  ~INLA, ~fmesher, ~Comment,
+  ~INLA, ~fmesher, ~Comments,
   c("inla.mesh.fem()", "inla.mesh.1d.fem()"), "fm_fem()", " ",
   " ", "fm_matern_precision()", " ",
   " ", "fm_matern_sample()", paste0(
@@ -133,6 +140,12 @@ df <- tribble(
     " Can produce sparse inverses like",
     " `inla.qinv()`, but currently (version 0.1.1) only",
     " by a 'brute force' method."
+  ),
+  "inla.qinv", "fm_qinv()",
+  paste0(
+    "Produce sparse inverses like",
+    " `inla.qinv()`, but currently (version 0.2.0.9010)",
+    " by an R implementation."
   ),
   " ", "fm_sample()", "Basic sampling method, like `inla.qsample()`"
 )
@@ -160,7 +173,7 @@ df <- convert_fun_links(df)
 knitr::kable(df)
 
 ## ----echo = FALSE-------------------------------------------------------------
-df <- convert_fun_links(
+df <-
   tibble::tribble(
     ~INLA, ~fmesher, ~Comments,
     "inla.spTransform()", "fm_transform()", "",
@@ -177,27 +190,39 @@ df <- convert_fun_links(
       " mesh coordinates."
     )
   )
-)
+df <- convert_fun_links(df)
 
 ## ----echo = FALSE-------------------------------------------------------------
 knitr::kable(df)
 
 ## ----echo = FALSE-------------------------------------------------------------
 df <- tribble(
-  ~INLA, ~fmesher, ~Comment,
-  "No ggplot support", c("geom_fm(data = mesh)", "geom_fm(data = segm)"),
+  ~INLA, ~fmesher, ~inlabru, ~Comments,
+  "No ggplot support",
+  c("geom_fm(data = mesh)", "geom_fm(data = segm)"),
+  "inlabru::gg(mesh)",
   "Use `ggplot() + geom_fm(data = mesh)` and `inlabru::gg()` methods",
-  "plot.inla.mesh(rgl = FALSE)", c("plot.fm_mesh_2d()", "lines.fm_mesh_2d()"),
+  "plot.inla.mesh(rgl = FALSE)",
+  c("plot.fm_mesh_2d()", "lines.fm_mesh_2d()"),
+  character(0),
   "Use `plot()` or `lines()`",
-  "lines.inla.mesh.segment(rgl = FALSE)", c(
+  "lines.inla.mesh.segment(rgl = FALSE)",
+  c(
     "plot.fm_segm()",
     "lines.fm_segm()"
-  ), "Use `plot()` or `lines()`",
-  "plot.inla.mesh(rgl = TRUE)", c("plot_rgl()", "lines_rgl()"), "",
-  "lines.inla.mesh.segment(rgl = TRUE)", c(
+  ),
+  character(0),
+  "Use `plot()` or `lines()`",
+  "plot.inla.mesh(rgl = TRUE)",
+  c("plot_rgl()", "lines_rgl()"),
+  character(0),
+  "",
+  "lines.inla.mesh.segment(rgl = TRUE)",
+  c(
     "plot_rgl()",
     "lines_rgl()"
   ),
+  character(0),
   ""
 )
 df <- convert_fun_links(df)

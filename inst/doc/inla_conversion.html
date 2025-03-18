@@ -237,6 +237,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Converting legacy INLA mesh code to
 fmesher</h1>
+<h4 class="date">Updated 14 November 2024</h4>
 
 
 
@@ -278,7 +279,20 @@ far as practical, with in particular the old <code>inla.mesh</code>,
 <code>inla.mesh.1d</code>, and <code>inla.mesh.segment</code> object
 classes given fallback methods that carry out methods for the new
 <code>fm_mesh_2d</code>, <code>fm_mesh_1d</code>, and
-<code>fm_segm</code> classes.</p>
+<code>fm_segm</code> classes. Starting in <strong>November 2024</strong>
+however, some of this direct fallback support is being phased out, so
+that old stored objects may need to be explicitly converted to
+<code>fmesher</code> objects using for example <code>fm_as_fm()</code>.
+New code, in particular in packages that use <code>fmesher</code>
+objects, should use the new interface methods, and replace references to
+<code>inla.mesh</code>, <code>inla.mesh.1d</code>, and
+<code>inla.mesh.segment</code> with <code>fm_mesh_2d</code>,
+<code>fm_mesh_1d</code>, and <code>fm_segm</code>, respectively, as the
+old class names will eventually be dropped from the mesh classes. This
+in particular applies to S3 method naming and class checking, where
+<code>inherits(mesh, &quot;inla.mesh&quot;)</code> must be replaced with
+<code>inherits(mesh, &quot;fm_mesh_2d&quot;)</code> in order to work in the
+future.</p>
 <p>An important change is that the handling of mesh <code>crs</code>
 information is now more flexible, but stricter in the sense that user
 code should make no assumption about how the information is stored in
@@ -303,8 +317,8 @@ interfaces may change in the future.</p>
 <h2>Mesh construction</h2>
 <table>
 <colgroup>
-<col width="23%" />
-<col width="76%" />
+<col width="17%" />
+<col width="82%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -315,47 +329,47 @@ interfaces may change in the future.</p>
 <tbody>
 <tr class="odd">
 <td align="left"><code>inla.mesh.create()</code></td>
-<td align="left"><a href="../reference/fm_rcdt_2d.html"><code>fm_rcdt_2d()</code></a>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_rcdt_2d.html"><code>fm_rcdt_2d()</code></a>
 ,
-<a href="../reference/fm_rcdt_2d.html"><code>fm_rcdt_2d_inla()</code></a></td>
+<a href="https://inlabru-org.github.io/fmesher/reference/fm_rcdt_2d.html"><code>fm_rcdt_2d_inla()</code></a></td>
 </tr>
 <tr class="even">
 <td align="left"><code>inla.mesh.2d()</code></td>
-<td align="left"><a href="../reference/fm_mesh_2d.html"><code>fm_mesh_2d()</code></a>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_mesh_2d.html"><code>fm_mesh_2d()</code></a>
 ,
-<a href="../reference/fm_mesh_2d.html"><code>fm_mesh_2d_inla()</code></a></td>
+<a href="https://inlabru-org.github.io/fmesher/reference/fm_mesh_2d.html"><code>fm_mesh_2d_inla()</code></a></td>
 </tr>
 <tr class="odd">
 <td align="left"><code>inla.delaunay()</code></td>
-<td align="left"><a href="../reference/fm_rcdt_2d.html"><code>fm_delaunay_2d()</code></a></td>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_rcdt_2d.html"><code>fm_delaunay_2d()</code></a></td>
 </tr>
 <tr class="even">
 <td align="left"><code>inla.mesh.1d()</code></td>
-<td align="left"><a href="../reference/fm_mesh_1d.html"><code>fm_mesh_1d()</code></a></td>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_mesh_1d.html"><code>fm_mesh_1d()</code></a></td>
 </tr>
 <tr class="odd">
 <td align="left"><code>inla.mesh.lattice()</code></td>
-<td align="left"><a href="../reference/fm_lattice_2d.html"><code>fm_lattice_2d()</code></a></td>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_lattice_2d.html"><code>fm_lattice_2d()</code></a></td>
 </tr>
 <tr class="even">
 <td align="left"><code>inla.mesh.segment()</code></td>
-<td align="left"><a href="../reference/fm_segm.html"><code>fm_segm()</code></a></td>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_segm.html"><code>fm_segm()</code></a></td>
 </tr>
 <tr class="odd">
 <td align="left"><code>inla.nonconvex.hull()</code></td>
-<td align="left"><a href="../reference/fm_nonconvex_hull.html"><code>fm_nonconvex_hull()</code></a>,
-<a href="../reference/fm_nonconvex_hull.html"><code>fm_extensions()</code></a>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_nonconvex_hull.html"><code>fm_nonconvex_hull()</code></a>,
+<a href="https://inlabru-org.github.io/fmesher/reference/fm_nonconvex_hull.html"><code>fm_extensions()</code></a>
 ,
-<a href="../reference/fm_simplify.html"><code>fm_simplify()</code></a></td>
+<a href="https://inlabru-org.github.io/fmesher/reference/fm_simplify.html"><code>fm_simplify()</code></a></td>
 </tr>
 <tr class="even">
 <td align="left"><code>inla.nonconvex.hull()</code> ,
 <code>inla.contour.segment()</code>,
 <code>inla.simplify.curve()</code></td>
-<td align="left"><a href="../reference/fm_nonconvex_hull_inla.html"><code>fm_nonconvex_hull_inla()</code></a>,
-<a href="../reference/fm_simplify_helper.html"><code>fm_simplify_helper()</code></a>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_nonconvex_hull_inla.html"><code>fm_nonconvex_hull_inla()</code></a>,
+<a href="https://inlabru-org.github.io/fmesher/reference/fm_simplify_helper.html"><code>fm_simplify_helper()</code></a>
 ,
-<a href="../reference/fm_segm_contour_helper.html"><code>fm_segm_contour_helper()</code></a></td>
+<a href="https://inlabru-org.github.io/fmesher/reference/fm_segm_contour_helper.html"><code>fm_segm_contour_helper()</code></a></td>
 </tr>
 </tbody>
 </table>
@@ -364,39 +378,46 @@ interfaces may change in the future.</p>
 <h2>Basis and function evaluation</h2>
 <table>
 <colgroup>
-<col width="2%" />
-<col width="97%" />
+<col width="3%" />
+<col width="49%" />
+<col width="47%" />
 </colgroup>
 <thead>
 <tr class="header">
 <th align="left">INLA</th>
 <th align="left">fmesher</th>
+<th align="left">inlabru</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="left"><code>inla.mesh.projector()</code></td>
-<td align="left"><a href="../reference/fm_evaluate.html"><code>fm_evaluator()</code></a></td>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_evaluate.html"><code>fm_evaluator()</code></a></td>
+<td align="left"></td>
 </tr>
 <tr class="even">
 <td align="left"><code>inla.mesh.project()</code></td>
-<td align="left"><a href="../reference/fm_evaluate.html"><code>fm_evaluate()</code></a></td>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_evaluate.html"><code>fm_evaluate()</code></a></td>
+<td align="left"></td>
 </tr>
 <tr class="odd">
 <td align="left"><code>inla.spde.make.A()</code></td>
-<td align="left"><a href="../reference/fm_basis.html"><code>fm_basis()</code></a>
-, <a href="../reference/fm_row_kron.html"><code>fm_row_kron()</code></a>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_basis.html"><code>fm_basis()</code></a>
 ,
-<a href="https://inlabru-org.github.io/inlabru/reference/bru_mapper_multi.html"><code>inlabru::bru_mapper_multi()</code></a>
+<a href="https://inlabru-org.github.io/fmesher/reference/fm_row_kron.html"><code>fm_row_kron()</code></a>,
+<a href="https://inlabru-org.github.io/fmesher/reference/fm_block.html"><code>fm_block()</code></a>
+,
+<a href="https://inlabru-org.github.io/fmesher/reference/fm_block.html"><code>fm_block_eval()</code></a></td>
+<td align="left"><a href="https://inlabru-org.github.io/inlabru/reference/bru_mapper_multi.html"><code>inlabru::bru_mapper_multi()</code></a>
 ,
 <a href="https://inlabru-org.github.io/inlabru/reference/bru_mapper_generics.html"><code>inlabru::ibm_jacobian()</code></a>
-, <a href="../reference/fm_block.html"><code>fm_block()</code></a> ,
-<a href="../reference/fm_block.html"><code>fm_block_eval()</code></a> ,
+,
 <a href="https://inlabru-org.github.io/inlabru/reference/bru_mapper_aggregate.html"><code>inlabru::bru_mapper_aggregate()</code></a></td>
 </tr>
 <tr class="even">
 <td align="left"><code>inla.mesh.deriv()</code></td>
-<td align="left"><a href="../reference/fm_basis.html"><code>fm_basis()</code></a></td>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_basis.html"><code>fm_basis()</code></a></td>
+<td align="left"></td>
 </tr>
 </tbody>
 </table>
@@ -405,46 +426,52 @@ interfaces may change in the future.</p>
 <h2>Finite element methods</h2>
 <table>
 <colgroup>
-<col width="14%" />
-<col width="21%" />
-<col width="63%" />
+<col width="13%" />
+<col width="30%" />
+<col width="56%" />
 </colgroup>
 <thead>
 <tr class="header">
 <th align="left">INLA</th>
 <th align="left">fmesher</th>
-<th align="left">Comment</th>
+<th align="left">Comments</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="left"><code>inla.mesh.fem()</code> ,
 <code>inla.mesh.1d.fem()</code></td>
-<td align="left"><a href="../reference/fm_fem.html"><code>fm_fem()</code></a></td>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_fem.html"><code>fm_fem()</code></a></td>
 <td align="left"></td>
 </tr>
 <tr class="even">
 <td align="left"><code></code></td>
-<td align="left"><a href="../reference/fm_gmrf.html"><code>fm_matern_precision()</code></a></td>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_gmrf.html"><code>fm_matern_precision()</code></a></td>
 <td align="left"></td>
 </tr>
 <tr class="odd">
 <td align="left"><code></code></td>
-<td align="left"><a href="../reference/fm_gmrf.html"><code>fm_matern_sample()</code></a></td>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_gmrf.html"><code>fm_matern_sample()</code></a></td>
 <td align="left">Convenience function that combines
 <code>fm_matern_precision()</code> and <code>fm_sample()</code>.</td>
 </tr>
 <tr class="even">
 <td align="left"><code></code></td>
-<td align="left"><a href="../reference/fm_gmrf.html"><code>fm_covariance()</code></a></td>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_gmrf.html"><code>fm_covariance()</code></a></td>
 <td align="left">Basic helper function for computing covariances between
 different locations. Can produce sparse inverses like
 <code>inla.qinv()</code>, but currently (version 0.1.1) only by a ‘brute
 force’ method.</td>
 </tr>
 <tr class="odd">
+<td align="left"><code>inla.qinv</code></td>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_qinv.html"><code>fm_qinv()</code></a></td>
+<td align="left">Produce sparse inverses like <code>inla.qinv()</code>,
+but currently (version 0.2.0.9010) by an R implementation.</td>
+</tr>
+<tr class="even">
 <td align="left"><code></code></td>
-<td align="left"><a href="../reference/fm_gmrf.html"><code>fm_sample()</code></a></td>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_gmrf.html"><code>fm_sample()</code></a></td>
 <td align="left">Basic sampling method, like
 <code>inla.qsample()</code></td>
 </tr>
@@ -455,9 +482,9 @@ force’ method.</td>
 <h2>Printing</h2>
 <table>
 <colgroup>
-<col width="8%" />
-<col width="81%" />
-<col width="9%" />
+<col width="6%" />
+<col width="87%" />
+<col width="6%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -469,10 +496,10 @@ force’ method.</td>
 <tbody>
 <tr class="odd">
 <td align="left"><code>summary.inla.mesh()</code></td>
-<td align="left"><a href="../reference/fmesher-print.html"><code>print.fm_mesh_2d()</code></a>,
-<a href="../reference/fmesher-print.html"><code>print.fm_segm()</code></a>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fmesher-print.html"><code>print.fm_mesh_2d()</code></a>,
+<a href="https://inlabru-org.github.io/fmesher/reference/fmesher-print.html"><code>print.fm_segm()</code></a>
 ,
-<a href="../reference/fmesher-print.html"><code>print.fm_mesh_1d()</code></a></td>
+<a href="https://inlabru-org.github.io/fmesher/reference/fmesher-print.html"><code>print.fm_mesh_1d()</code></a></td>
 <td align="left">Use <code>print(mesh)</code> etc.</td>
 </tr>
 </tbody>
@@ -482,9 +509,9 @@ force’ method.</td>
 <h2>CRS information and coordinate transformations</h2>
 <table>
 <colgroup>
-<col width="7%" />
-<col width="38%" />
-<col width="53%" />
+<col width="5%" />
+<col width="50%" />
+<col width="43%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -496,14 +523,14 @@ force’ method.</td>
 <tbody>
 <tr class="odd">
 <td align="left"><code>inla.spTransform()</code></td>
-<td align="left"><a href="../reference/fm_transform.html"><code>fm_transform()</code></a></td>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_transform.html"><code>fm_transform()</code></a></td>
 <td align="left"></td>
 </tr>
 <tr class="even">
 <td align="left"><code>mesh$crs</code></td>
-<td align="left"><a href="../reference/fm_crs.html"><code>fm_crs(mesh)</code></a>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_crs.html"><code>fm_crs(mesh)</code></a>
 ,
-<a href="../reference/fm_CRS_sp.html"><code>fm_CRS(mesh)</code></a></td>
+<a href="https://inlabru-org.github.io/fmesher/reference/fm_CRS_sp.html"><code>fm_CRS(mesh)</code></a></td>
 <td align="left">The crs may now be stored in different formats; use
 <code>fm_crs()</code> for <code>sf</code> format, and
 <code>fm_CRS()</code> for <code>sp</code> format. <code>fmesher</code>
@@ -511,7 +538,7 @@ will attempt to convert when needed.</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>mesh$crs&lt;-</code></td>
-<td align="left"><a href="../reference/fm_crs.html"><code>fm_crs(mesh)&lt;-</code></a></td>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_crs.html"><code>fm_crs(mesh)&lt;-</code></a></td>
 <td align="left">Direct assignment of crs information should be avoided,
 but is allowed as long as its compatible with the actual mesh
 coordinates.</td>
@@ -523,49 +550,58 @@ coordinates.</td>
 <h2>Plotting</h2>
 <table>
 <colgroup>
-<col width="15%" />
-<col width="56%" />
-<col width="27%" />
+<col width="9%" />
+<col width="51%" />
+<col width="22%" />
+<col width="16%" />
 </colgroup>
 <thead>
 <tr class="header">
 <th align="left">INLA</th>
 <th align="left">fmesher</th>
-<th align="left">Comment</th>
+<th align="left">inlabru</th>
+<th align="left">Comments</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="left"><code>No ggplot support</code></td>
-<td align="left"><a href="../reference/geom_fm.html"><code>geom_fm(data = mesh)</code></a>,
-<a href="../reference/geom_fm.html"><code>geom_fm(data = segm)</code></a></td>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/geom_fm.html"><code>geom_fm(data = mesh)</code></a>,
+<a href="https://inlabru-org.github.io/fmesher/reference/geom_fm.html"><code>geom_fm(data = segm)</code></a></td>
+<td align="left"><a href="https://inlabru-org.github.io/inlabru/reference/gg.html"><code>inlabru::gg(mesh)</code></a></td>
 <td align="left">Use <code>ggplot() + geom_fm(data = mesh)</code> and
 <code>inlabru::gg()</code> methods</td>
 </tr>
 <tr class="even">
 <td align="left"><code>plot.inla.mesh(rgl = FALSE)</code></td>
-<td align="left"><a href="../reference/plot.fm_mesh_2d.html"><code>plot.fm_mesh_2d()</code></a>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/plot.fm_mesh_2d.html"><code>plot.fm_mesh_2d()</code></a>
 ,
-<a href="../reference/plot.fm_mesh_2d.html"><code>lines.fm_mesh_2d()</code></a></td>
+<a href="https://inlabru-org.github.io/fmesher/reference/plot.fm_mesh_2d.html"><code>lines.fm_mesh_2d()</code></a></td>
+<td align="left"></td>
 <td align="left">Use <code>plot()</code> or <code>lines()</code></td>
 </tr>
 <tr class="odd">
 <td align="left"><code>lines.inla.mesh.segment(rgl = FALSE)</code></td>
-<td align="left"><a href="../reference/plot.fm_segm.html"><code>plot.fm_segm()</code></a>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/plot.fm_segm.html"><code>plot.fm_segm()</code></a>
 ,
-<a href="../reference/plot.fm_segm.html"><code>lines.fm_segm()</code></a></td>
+<a href="https://inlabru-org.github.io/fmesher/reference/plot.fm_segm.html"><code>lines.fm_segm()</code></a></td>
+<td align="left"></td>
 <td align="left">Use <code>plot()</code> or <code>lines()</code></td>
 </tr>
 <tr class="even">
 <td align="left"><code>plot.inla.mesh(rgl = TRUE)</code></td>
-<td align="left"><a href="../reference/plot_rgl.html"><code>plot_rgl()</code></a>
-, <a href="../reference/plot_rgl.html"><code>lines_rgl()</code></a></td>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/plot_rgl.html"><code>plot_rgl()</code></a>
+,
+<a href="https://inlabru-org.github.io/fmesher/reference/plot_rgl.html"><code>lines_rgl()</code></a></td>
+<td align="left"></td>
 <td align="left"></td>
 </tr>
 <tr class="odd">
 <td align="left"><code>lines.inla.mesh.segment(rgl = TRUE)</code></td>
-<td align="left"><a href="../reference/plot_rgl.html"><code>plot_rgl()</code></a>
-, <a href="../reference/plot_rgl.html"><code>lines_rgl()</code></a></td>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/plot_rgl.html"><code>plot_rgl()</code></a>
+,
+<a href="https://inlabru-org.github.io/fmesher/reference/plot_rgl.html"><code>lines_rgl()</code></a></td>
+<td align="left"></td>
 <td align="left"></td>
 </tr>
 </tbody>
