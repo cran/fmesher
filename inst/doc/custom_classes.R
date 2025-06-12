@@ -44,22 +44,22 @@ fm_basis.custom <- function(x, loc, ..., full = FALSE) {
 }
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  # 'matrix' and 'Matrix' methods:
-#  fm_basis(
-#    A = A,
-#    ok = ok, # If missing or NULL, inferred to be all TRUE
-#    loc = loc, # Optional additional content
-#    full = full
-#  )
-#  # 'list' method:
-#  fm_basis(
-#    list(
-#      A = A,
-#      ok = ok, # If missing or NULL, inferred to be all TRUE
-#      loc = loc
-#    ),
-#    full = full
-#  )
+# # 'matrix' and 'Matrix' methods:
+# fm_basis(
+#   A = A,
+#   ok = ok, # If missing or NULL, inferred to be all TRUE
+#   loc = loc, # Optional additional content
+#   full = full
+# )
+# # 'list' method:
+# fm_basis(
+#   list(
+#     A = A,
+#     ok = ok, # If missing or NULL, inferred to be all TRUE
+#     loc = loc
+#   ),
+#   full = full
+# )
 
 ## -----------------------------------------------------------------------------
 .S3method("fm_dof", "custom", "fm_dof.custom")
@@ -70,13 +70,13 @@ fm_basis.custom <- function(x, loc, ..., full = FALSE) {
 #' @rawNamespace S3method(fmesher::fm_basis, custom)
 
 ## ----eval = FALSE-------------------------------------------------------------
-#  #' @title Degrees of freedom for custom mesh
-#  #' @description the number of degrees of freedom
-#  #' # The rest of the documentation goes here
-#  #' @exportS3method fmesher::fm_dof
-#  fm_dof.custom <- function(x) {
-#    1L + 2L * x[["n"]]
-#  }
+# #' @title Degrees of freedom for custom mesh
+# #' @description the number of degrees of freedom
+# #' # The rest of the documentation goes here
+# #' @exportS3method fmesher::fm_dof
+# fm_dof.custom <- function(x) {
+#   1L + 2L * x[["n"]]
+# }
 
 ## -----------------------------------------------------------------------------
 m <- create_custom(2)

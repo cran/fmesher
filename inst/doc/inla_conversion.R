@@ -71,6 +71,13 @@ convert_fun_links <- function(df, packages = colnames(df)) {
   df
 }
 
+## ----eval=FALSE---------------------------------------------------------------
+# if (requireNamespace("INLA", quietly = TRUE)) {
+#   INLA::inla.setOption(fmesher.evolution = 2L)
+#   INLA::inla.setOption(fmesher.evolution.warn = TRUE)
+#   INLA::inla.setOption(fmesher.evolution.verbosity = "warn")
+# }
+
 ## ----echo = FALSE-------------------------------------------------------------
 df <- tribble(
   ~INLA, ~fmesher,
@@ -94,7 +101,9 @@ df <- tribble(
     "fm_nonconvex_hull_inla()",
     "fm_simplify_helper()",
     "fm_segm_contour_helper()"
-  )
+  ),
+  "inla.mesh.components()", "fm_mesh_components()",
+  NA_character_, "fm_subdivide()"
 )
 df <- convert_fun_links(df)
 

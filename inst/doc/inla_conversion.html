@@ -39,6 +39,107 @@ ul.task-list{list-style: none;}
 
 
 
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
 
 
 
@@ -237,10 +338,32 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Converting legacy INLA mesh code to
 fmesher</h1>
-<h4 class="date">Updated 14 November 2024</h4>
+<h4 class="date">Updated 11 April 2025</h4>
 
 
 
+<div id="deprecation-of-old-methods-and-class-names" class="section level2">
+<h2>Deprecation of old methods and class names</h2>
+<p>Great effort has been taken to preserve backwards compatibility as
+far as practical, with in particular the old <code>inla.mesh</code>,
+<code>inla.mesh.1d</code>, and <code>inla.mesh.segment</code> object
+classes given fallback methods that carry out methods for the new
+<code>fm_mesh_2d</code>, <code>fm_mesh_1d</code>, and
+<code>fm_segm</code> classes. Starting in <strong>November 2024</strong>
+however, some of this direct fallback support is being phased out, so
+that old stored objects may need to be explicitly converted to
+<code>fmesher</code> objects using for example <code>fm_as_fm()</code>.
+New code, in particular in packages that use <code>fmesher</code>
+objects, should use the new interface methods, and replace references to
+<code>inla.mesh</code>, <code>inla.mesh.1d</code>, and
+<code>inla.mesh.segment</code> with <code>fm_mesh_2d</code>,
+<code>fm_mesh_1d</code>, and <code>fm_segm</code>, respectively, as the
+old class names will eventually be dropped from the mesh classes. This
+in particular applies to S3 method naming and class checking, where
+<code>inherits(mesh, &quot;inla.mesh&quot;)</code> must be replaced with
+<code>inherits(mesh, &quot;fm_mesh_2d&quot;)</code> in order to work in the
+future.</p>
+</div>
 <div id="deprecation-warnings" class="section level2">
 <h2>Deprecation warnings</h2>
 <p>Three
@@ -272,27 +395,15 @@ to run existing code without changing it.</p></li>
 “warn” or “stop” to get more immediate feedback when testing conversion
 of old code, e.g. in package testing.</p></li>
 </ul>
+<p>Packages using mesh methods should use these options in package
+testing, e.g. in <code>tests/testthat/setup.R</code>:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">&quot;INLA&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>  INLA<span class="sc">::</span><span class="fu">inla.setOption</span>(<span class="at">fmesher.evolution =</span> <span class="dv">2</span><span class="dt">L</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>  INLA<span class="sc">::</span><span class="fu">inla.setOption</span>(<span class="at">fmesher.evolution.warn =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  INLA<span class="sc">::</span><span class="fu">inla.setOption</span>(<span class="at">fmesher.evolution.verbosity =</span> <span class="st">&quot;warn&quot;</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>}</span></code></pre></div>
 <div id="compatibility" class="section level3">
 <h3>Compatibility</h3>
-<p>Great effort has been taken to preserve backwards compatibility as
-far as practical, with in particular the old <code>inla.mesh</code>,
-<code>inla.mesh.1d</code>, and <code>inla.mesh.segment</code> object
-classes given fallback methods that carry out methods for the new
-<code>fm_mesh_2d</code>, <code>fm_mesh_1d</code>, and
-<code>fm_segm</code> classes. Starting in <strong>November 2024</strong>
-however, some of this direct fallback support is being phased out, so
-that old stored objects may need to be explicitly converted to
-<code>fmesher</code> objects using for example <code>fm_as_fm()</code>.
-New code, in particular in packages that use <code>fmesher</code>
-objects, should use the new interface methods, and replace references to
-<code>inla.mesh</code>, <code>inla.mesh.1d</code>, and
-<code>inla.mesh.segment</code> with <code>fm_mesh_2d</code>,
-<code>fm_mesh_1d</code>, and <code>fm_segm</code>, respectively, as the
-old class names will eventually be dropped from the mesh classes. This
-in particular applies to S3 method naming and class checking, where
-<code>inherits(mesh, &quot;inla.mesh&quot;)</code> must be replaced with
-<code>inherits(mesh, &quot;fm_mesh_2d&quot;)</code> in order to work in the
-future.</p>
 <p>An important change is that the handling of mesh <code>crs</code>
 information is now more flexible, but stricter in the sense that user
 code should make no assumption about how the information is stored in
@@ -370,6 +481,14 @@ interfaces may change in the future.</p>
 <a href="https://inlabru-org.github.io/fmesher/reference/fm_simplify_helper.html"><code>fm_simplify_helper()</code></a>
 ,
 <a href="https://inlabru-org.github.io/fmesher/reference/fm_segm_contour_helper.html"><code>fm_segm_contour_helper()</code></a></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>inla.mesh.components()</code></td>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_mesh_components.html"><code>fm_mesh_components()</code></a></td>
+</tr>
+<tr class="even">
+<td align="left"><code>NA</code></td>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_subdivide.html"><code>fm_subdivide()</code></a></td>
 </tr>
 </tbody>
 </table>

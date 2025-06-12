@@ -413,7 +413,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb4-38"><a href="#cb4-38" tabindex="-1"></a>field <span class="ot">&lt;-</span> mesh2<span class="sc">$</span>loc[, <span class="dv">1</span>]</span>
 <span id="cb4-39"><a href="#cb4-39" tabindex="-1"></a>value <span class="ot">&lt;-</span> <span class="fu">fm_evaluate</span>(evaluator, <span class="at">field =</span> field)</span>
 <span id="cb4-40"><a href="#cb4-40" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">abs</span>(pts[, <span class="dv">1</span>] <span class="sc">-</span> value), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb4-41"><a href="#cb4-41" tabindex="-1"></a><span class="co">#&gt; [1] 5.438358e-14</span></span></code></pre></div>
+<span id="cb4-41"><a href="#cb4-41" tabindex="-1"></a><span class="co">#&gt; [1] 4.332298e-14</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>pts1 <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">12</span>, <span class="at">length.out =</span> <span class="dv">1000</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co"># Find what segment, and its interval Barycentric coordinates</span></span>
