@@ -9,6 +9,9 @@ suppressPackageStartupMessages(library(fmesher))
 suppressPackageStartupMessages(library(tibble))
 
 convert_fun_link <- function(x, webref) {
+  if (all(is.na(x))) {
+    return("N/A")
+  }
   pkg_name <- sub(
     pattern = "^(([^:]*)::)?([^(]+)(\\(.*\\))(<-)?$",
     replacement = "\\2",
@@ -80,30 +83,31 @@ convert_fun_links <- function(df, packages = colnames(df)) {
 
 ## ----echo = FALSE-------------------------------------------------------------
 df <- tribble(
-  ~INLA, ~fmesher,
-  "inla.mesh.create()", c("fm_rcdt_2d()", "fm_rcdt_2d_inla()"),
-  "inla.mesh.2d()", c("fm_mesh_2d()", "fm_mesh_2d_inla()"),
-  "inla.delaunay()", "fm_delaunay_2d()",
-  "inla.mesh.1d()", "fm_mesh_1d()",
-  "inla.mesh.lattice()", "fm_lattice_2d()",
-  "inla.mesh.segment()", "fm_segm()",
+  ~INLA, ~fmesher, ~Comments,
+  "inla.mesh.create()", c("fm_rcdt_2d()", "fm_rcdt_2d_inla()"), "",
+  "inla.mesh.2d()", c("fm_mesh_2d()", "fm_mesh_2d_inla()"), "",
+  "inla.delaunay()", "fm_delaunay_2d()", "",
+  "inla.mesh.1d()", "fm_mesh_1d()", "",
+  "inla.mesh.lattice()", "fm_lattice_2d()", "",
+  "inla.mesh.segment()", "fm_segm()", "",
   "inla.nonconvex.hull()", c(
     "fm_nonconvex_hull()",
     "fm_extensions()",
     "fm_simplify()"
-  ),
+  ), 'Use `format = "fm"` to get `fm_segm` output from `fm_nonconvex_hull()`.',
   c(
-    "inla.nonconvex.hull()",
     "inla.contour.segment()",
     "inla.simplify.curve()"
   ),
   c(
-    "fm_nonconvex_hull_inla()",
     "fm_simplify_helper()",
     "fm_segm_contour_helper()"
-  ),
-  "inla.mesh.components()", "fm_mesh_components()",
-  NA_character_, "fm_subdivide()"
+  ), "",
+  "inla.mesh.components()", "fm_mesh_components()", "",
+  NA_character_, "fm_subdivide()", "",
+  NA_character_,
+  "fm_hexagon_lattice()",
+  "Creates points for equilateral triangles inside a polygon domain.",
 )
 df <- convert_fun_links(df)
 
@@ -112,20 +116,24 @@ knitr::kable(df)
 
 ## ----echo = FALSE-------------------------------------------------------------
 df <- tribble(
-  ~INLA, ~fmesher, ~inlabru,
-  "inla.mesh.projector()", "fm_evaluator()", character(0),
-  "inla.mesh.project()", "fm_evaluate()", character(0),
+  ~INLA, ~fmesher, ~inlabru, ~Comments,
+  "inla.mesh.query()",
+  NA_character_, NA_character_,
+  "For tt and vt multi-order neighbours. No fmesher equivalent in version <= 0.6.0",
+  "inla.mesh.projector()", "fm_evaluator()", character(0), "",
+  "inla.mesh.project()", "fm_evaluate()", character(0), "",
   "inla.spde.make.A()", c(
+    "fm_bary()",
     "fm_basis()",
     "fm_row_kron()",
     "fm_block()",
     "fm_block_eval()"
   ), c(
-    "inlabru::bru_mapper_multi()",
+    "inlabru::bm_multi()",
     "inlabru::ibm_jacobian()",
-    "inlabru::bru_mapper_aggregate()"
-  ),
-  "inla.mesh.deriv()", "fm_basis()", character(0)
+    "inlabru::bm_aggregate()"
+  ), "",
+  "inla.mesh.deriv()", "fm_basis()", character(0), ""
 )
 df <- convert_fun_links(df)
 
@@ -136,13 +144,13 @@ knitr::kable(df)
 df <- tribble(
   ~INLA, ~fmesher, ~Comments,
   c("inla.mesh.fem()", "inla.mesh.1d.fem()"), "fm_fem()", " ",
-  " ", "fm_matern_precision()", " ",
-  " ", "fm_matern_sample()", paste0(
+  NA_character_, "fm_matern_precision()", " ",
+  NA_character_, "fm_matern_sample()", paste0(
     "Convenience function that combines",
     " `fm_matern_precision()`",
     " and `fm_sample()`."
   ),
-  " ", "fm_covariance()",
+  NA_character_, "fm_covariance()",
   paste0(
     "Basic helper function for computing",
     " covariances between different locations.",
@@ -150,7 +158,7 @@ df <- tribble(
     " `inla.qinv()`, but currently (version 0.1.1) only",
     " by a 'brute force' method."
   ),
-  "inla.qinv", "fm_qinv()",
+  " ", "fm_qinv()",
   paste0(
     "Produce sparse inverses like",
     " `inla.qinv()`, but currently (version 0.2.0.9010)",

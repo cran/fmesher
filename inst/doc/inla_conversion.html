@@ -48,8 +48,9 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -60,7 +61,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -338,7 +339,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Converting legacy INLA mesh code to
 fmesher</h1>
-<h4 class="date">Updated 11 April 2025</h4>
+<h4 class="date">Updated 11 July 2025</h4>
 
 
 
@@ -380,7 +381,8 @@ programme for mesh construction and related operations. (From
 <code>INLA</code> version 23.06.29)</li>
 <li><code>2L</code> uses the full range of <code>fmesher</code> package
 methods, and does not use the standalone <code>fmesher</code> programme.
-(From <code>INLA</code> around version 23.08.20)</li>
+(From <code>INLA</code> around version 23.08.20, and is now the only
+supported option.)</li>
 </ul></li>
 <li><p><code>fmesher.evolution.warn</code>, logical: When
 <code>TRUE</code>, <code>INLA</code> will show deprecation methods for
@@ -428,13 +430,15 @@ interfaces may change in the future.</p>
 <h2>Mesh construction</h2>
 <table>
 <colgroup>
-<col width="17%" />
-<col width="82%" />
+<col width="11%" />
+<col width="71%" />
+<col width="16%" />
 </colgroup>
 <thead>
 <tr class="header">
 <th align="left">INLA</th>
 <th align="left">fmesher</th>
+<th align="left">Comments</th>
 </tr>
 </thead>
 <tbody>
@@ -443,28 +447,34 @@ interfaces may change in the future.</p>
 <td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_rcdt_2d.html"><code>fm_rcdt_2d()</code></a>
 ,
 <a href="https://inlabru-org.github.io/fmesher/reference/fm_rcdt_2d.html"><code>fm_rcdt_2d_inla()</code></a></td>
+<td align="left"></td>
 </tr>
 <tr class="even">
 <td align="left"><code>inla.mesh.2d()</code></td>
 <td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_mesh_2d.html"><code>fm_mesh_2d()</code></a>
 ,
 <a href="https://inlabru-org.github.io/fmesher/reference/fm_mesh_2d.html"><code>fm_mesh_2d_inla()</code></a></td>
+<td align="left"></td>
 </tr>
 <tr class="odd">
 <td align="left"><code>inla.delaunay()</code></td>
 <td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_rcdt_2d.html"><code>fm_delaunay_2d()</code></a></td>
+<td align="left"></td>
 </tr>
 <tr class="even">
 <td align="left"><code>inla.mesh.1d()</code></td>
 <td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_mesh_1d.html"><code>fm_mesh_1d()</code></a></td>
+<td align="left"></td>
 </tr>
 <tr class="odd">
 <td align="left"><code>inla.mesh.lattice()</code></td>
 <td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_lattice_2d.html"><code>fm_lattice_2d()</code></a></td>
+<td align="left"></td>
 </tr>
 <tr class="even">
 <td align="left"><code>inla.mesh.segment()</code></td>
 <td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_segm.html"><code>fm_segm()</code></a></td>
+<td align="left"></td>
 </tr>
 <tr class="odd">
 <td align="left"><code>inla.nonconvex.hull()</code></td>
@@ -472,70 +482,93 @@ interfaces may change in the future.</p>
 <a href="https://inlabru-org.github.io/fmesher/reference/fm_nonconvex_hull.html"><code>fm_extensions()</code></a>
 ,
 <a href="https://inlabru-org.github.io/fmesher/reference/fm_simplify.html"><code>fm_simplify()</code></a></td>
+<td align="left">Use <code>format = &quot;fm&quot;</code> to get
+<code>fm_segm</code> output from <code>fm_nonconvex_hull()</code>.</td>
 </tr>
 <tr class="even">
-<td align="left"><code>inla.nonconvex.hull()</code> ,
-<code>inla.contour.segment()</code>,
+<td align="left"><code>inla.contour.segment()</code>,
 <code>inla.simplify.curve()</code></td>
-<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_nonconvex_hull_inla.html"><code>fm_nonconvex_hull_inla()</code></a>,
-<a href="https://inlabru-org.github.io/fmesher/reference/fm_simplify_helper.html"><code>fm_simplify_helper()</code></a>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_simplify_helper.html"><code>fm_simplify_helper()</code></a>
 ,
 <a href="https://inlabru-org.github.io/fmesher/reference/fm_segm_contour_helper.html"><code>fm_segm_contour_helper()</code></a></td>
+<td align="left"></td>
 </tr>
 <tr class="odd">
 <td align="left"><code>inla.mesh.components()</code></td>
-<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_components.html"><code>fm_mesh_components()</code></a></td>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fmesher-deprecated.html"><code>fm_mesh_components()</code></a></td>
+<td align="left"></td>
 </tr>
 <tr class="even">
 <td align="left"><code>NA</code></td>
 <td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_subdivide.html"><code>fm_subdivide()</code></a></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>NA</code></td>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_hexagon_lattice.html"><code>fm_hexagon_lattice()</code></a></td>
+<td align="left">Creates points for equilateral triangles inside a
+polygon domain.</td>
 </tr>
 </tbody>
 </table>
 </div>
-<div id="basis-and-function-evaluation" class="section level2">
-<h2>Basis and function evaluation</h2>
+<div id="location-basis-and-function-evaluation" class="section level2">
+<h2>Location, basis and function evaluation</h2>
 <table>
 <colgroup>
-<col width="3%" />
-<col width="50%" />
-<col width="45%" />
+<col width="2%" />
+<col width="52%" />
+<col width="36%" />
+<col width="8%" />
 </colgroup>
 <thead>
 <tr class="header">
 <th align="left">INLA</th>
 <th align="left">fmesher</th>
 <th align="left">inlabru</th>
+<th align="left">Comments</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<td align="left"><code>inla.mesh.query()</code></td>
+<td align="left">N/A</td>
+<td align="left">N/A</td>
+<td align="left">For tt and vt multi-order neighbours. No fmesher
+equivalent in version &lt;= 0.6.0</td>
+</tr>
+<tr class="even">
 <td align="left"><code>inla.mesh.projector()</code></td>
 <td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_evaluate.html"><code>fm_evaluator()</code></a></td>
 <td align="left"></td>
-</tr>
-<tr class="even">
-<td align="left"><code>inla.mesh.project()</code></td>
-<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_evaluate.html"><code>fm_evaluate()</code></a></td>
 <td align="left"></td>
 </tr>
 <tr class="odd">
+<td align="left"><code>inla.mesh.project()</code></td>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_evaluate.html"><code>fm_evaluate()</code></a></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
 <td align="left"><code>inla.spde.make.A()</code></td>
-<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_basis.html"><code>fm_basis()</code></a>
+<td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_bary.html"><code>fm_bary()</code></a>
+,
+<a href="https://inlabru-org.github.io/fmesher/reference/fm_basis.html"><code>fm_basis()</code></a>
 ,
 <a href="https://inlabru-org.github.io/fmesher/reference/fm_row_kron.html"><code>fm_row_kron()</code></a>,
 <a href="https://inlabru-org.github.io/fmesher/reference/fm_block.html"><code>fm_block()</code></a>
 ,
 <a href="https://inlabru-org.github.io/fmesher/reference/fm_block.html"><code>fm_block_eval()</code></a></td>
-<td align="left"><a href="https://inlabru-org.github.io/inlabru/reference/bm_multi.html"><code>inlabru::bru_mapper_multi()</code></a>
+<td align="left"><a href="https://inlabru-org.github.io/inlabru/reference/bm_multi.html"><code>inlabru::bm_multi()</code></a>
 ,
-<a href="https://inlabru-org.github.io/inlabru/reference/bru_mapper_generics.html"><code>inlabru::ibm_jacobian()</code></a>
-,
-<a href="https://inlabru-org.github.io/inlabru/reference/bm_aggregate.html"><code>inlabru::bru_mapper_aggregate()</code></a></td>
+<a href="https://inlabru-org.github.io/inlabru/reference/bru_mapper_generics.html"><code>inlabru::ibm_jacobian()</code></a>,
+<a href="https://inlabru-org.github.io/inlabru/reference/bm_aggregate.html"><code>inlabru::bm_aggregate()</code></a></td>
+<td align="left"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><code>inla.mesh.deriv()</code></td>
 <td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_basis.html"><code>fm_basis()</code></a></td>
+<td align="left"></td>
 <td align="left"></td>
 </tr>
 </tbody>
@@ -564,18 +597,18 @@ interfaces may change in the future.</p>
 <td align="left"></td>
 </tr>
 <tr class="even">
-<td align="left"><code></code></td>
+<td align="left"><code>NA</code></td>
 <td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_gmrf.html"><code>fm_matern_precision()</code></a></td>
 <td align="left"></td>
 </tr>
 <tr class="odd">
-<td align="left"><code></code></td>
+<td align="left"><code>NA</code></td>
 <td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_gmrf.html"><code>fm_matern_sample()</code></a></td>
 <td align="left">Convenience function that combines
 <code>fm_matern_precision()</code> and <code>fm_sample()</code>.</td>
 </tr>
 <tr class="even">
-<td align="left"><code></code></td>
+<td align="left"><code>NA</code></td>
 <td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_gmrf.html"><code>fm_covariance()</code></a></td>
 <td align="left">Basic helper function for computing covariances between
 different locations. Can produce sparse inverses like
@@ -583,7 +616,7 @@ different locations. Can produce sparse inverses like
 force’ method.</td>
 </tr>
 <tr class="odd">
-<td align="left"><code>inla.qinv</code></td>
+<td align="left"><code></code></td>
 <td align="left"><a href="https://inlabru-org.github.io/fmesher/reference/fm_qinv.html"><code>fm_qinv()</code></a></td>
 <td align="left">Produce sparse inverses like <code>inla.qinv()</code>,
 but currently (version 0.2.0.9010) by an R implementation.</td>
